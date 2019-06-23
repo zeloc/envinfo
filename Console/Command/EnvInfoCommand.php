@@ -54,31 +54,31 @@ class EnvInfoCommand extends Command
         $output->writeln('');
         $output->writeln('<question>########    Env Info    #########</question>');
         $output->writeln('');
-        $output->writeln('<info>Site URL: </info><comment>' . $this->getHostUrl() . '</comment>');
-        $output->writeln('<info>Base Path: </info><comment>' . $this->getRootPath() . '</comment>');
-        $output->writeln('<info>Front Name: </info><comment>' . $this->envData['backend']['frontName'] . '</comment>');
+        $output->writeln('<info>Site URL: </info><fg=blue;>' . $this->getHostUrl() . '</>');
+        $output->writeln('<info>Base Path: </info><fg=blue;>' . $this->getRootPath() . '</>');
+        $output->writeln('<info>Front Name: </info><fg=blue;>' . $this->envData['backend']['frontName'] . '</>');
         $output->writeln(
-            '<info>Database Name:</info> <comment>'
-            . $this->envData['db']['connection']['default']['dbname'] . '</comment>'
+            '<info>Database Name:</info> <fg=blue;>'
+            . $this->envData['db']['connection']['default']['dbname'] . '</>'
         );
         $output->writeln(
-            '<info>Database User Name:</info> <comment>'
-            . $this->envData['db']['connection']['default']['username'] . '</comment>'
+            '<info>Database User Name:</info> <fg=blue;>'
+            . $this->envData['db']['connection']['default']['username'] . '</>'
         );
         $output->writeln(
-            '<info>Database Password:</info> <comment>'
-            . $this->envData['db']['connection']['default']['password'] . '</comment>'
+            '<info>Database Password:</info> <fg=blue;>'
+            . $this->envData['db']['connection']['default']['password'] . '</>'
         );
-        $output->writeln('<info>Mage Mode:</info> <comment>' . $this->envData['MAGE_MODE'] . '</comment>');
-        $output->writeln('<info>Current Stores:</info> <comment>' . $this->getStoreNames() . '</comment>');
+        $output->writeln('<info>Mage Mode:</info> <fg=blue;>' . $this->envData['MAGE_MODE'] . '</>');
+        $output->writeln('<info>Current Stores:</info> <fg=blue;>' . $this->getStoreNames() . '</>');
         $output->writeln(
-            '<info>Caches Enabled:</info> <comment>' . $this->getCacheList($this->getCacheState(1)) . '</comment>'
+            '<info>Caches Enabled:</info> <fg=blue;>' . $this->getCacheList($this->getCacheState(1)) . '</>'
         );
         $output->writeln(
-            '<info>Caches Disabled:</info> <comment>' . $this->getCacheList($this->getCacheState(0)) . '</comment>'
+            '<info>Caches Disabled:</info> <fg=blue;>' . $this->getCacheList($this->getCacheState(0)) . '</>'
         );
-        $output->writeln('<info>PHP Version:</info> <comment>' . phpversion() . '</comment>');
-        $output->writeln('<info>Xdebug Status:</info> <comment>' . $this->getXdebugStatus() . '</comment>');
+        $output->writeln('<info>PHP Version:</info> <fg=blue;>' . phpversion() . '</>');
+        $output->writeln('<info>Xdebug Status:</info> <fg=blue;>' . $this->getXdebugStatus() . '</>');
         $output->writeln('');
         $output->writeln('<question>##################################</question>');
         $output->writeln('');
