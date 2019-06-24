@@ -20,6 +20,7 @@ class EnvInfoCommand extends Command
     private $storeRepository;
     private $envData;
     private $cachManager;
+    private $output;
 
     /**
      * EnvInfoCommand constructor.
@@ -54,6 +55,7 @@ class EnvInfoCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->output = $output;
         $output->writeln('');
         $output->writeln('<question>########    Env Info    #########</question>');
         $output->writeln('');
@@ -98,23 +100,32 @@ class EnvInfoCommand extends Command
     private function getHostConfigFile()
     {
         $configfiles = [];
-        foreach($this->getAllVhostConfigFiles() as $file){
-            $fileData = file($file);
-            foreach($fileData as $line){
-                if(strpos($line,$this->getRootPath())){
-                    $configfiles[] = $file;
+
+        try {
+            foreach ($this->getAllVhostConfigFiles() as $file) {
+                $fileData = file($file);
+                foreach ($fileData as $line) {
+                    if (strpos($line, $this->getRootPath())) {
+                        $configfiles[] = $file;
+                    }
                 }
             }
+        } catch (\Exception $e) {
+            $this->output->writeln('<fg=red;>Error:</> <fg=blue;>' . $e->getMessage() . '</>');
+        }
+        try {
+            foreach ($this->getAllNginxConfigSitesEnabled() as $file) {
+                $fileData = file($file);
+                foreach ($fileData as $line) {
+                    if (strpos($line, $this->getRootPath())) {
+                        $configfiles[] = $file;
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            $this->output->writeln('<fg=red>Error:</> <fg=blue;>' . $e->getMessage() . '</>');
         }
 
-        foreach($this->getAllNginxConfigSitesEnabled() as $file){
-            $fileData = file($file);
-            foreach($fileData as $line){
-                if(strpos($line,$this->getRootPath())){
-                    $configfiles[] = $file;
-                }
-            }
-        }
 
         if(count($configfiles) > 1){
             $filePathData = '';
