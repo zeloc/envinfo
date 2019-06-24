@@ -12,6 +12,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class EnvInfoCommand extends Command
 {
+    const VHOST_DIR = '/var/www/vhost/';
+    const NGINX_SITES_ENABLED_DIR = '/etc/nginx/sites-enabled/';
+
     private $directoryList;
     private $scopeConfig;
     private $storeRepository;
@@ -79,9 +82,91 @@ class EnvInfoCommand extends Command
         );
         $output->writeln('<info>PHP Version:</info> <fg=blue;>' . phpversion() . '</>');
         $output->writeln('<info>Xdebug Status:</info> <fg=blue;>' . $this->getXdebugStatus() . '</>');
+        $output->writeln('<info>Host Nginx config File:</info> <fg=blue;>' . $this->getHostConfigFile() . '</>');
+        $output->writeln('<info>Host Nginx Log files:</info> <fg=blue;>' . $this->getHostNginxLog() . '</>');
         $output->writeln('');
         $output->writeln('<question>##################################</question>');
         $output->writeln('');
+    }
+
+
+    private function getAllVhostConfigFiles()
+    {
+        return $this->getFilesInDir(self::VHOST_DIR);
+    }
+
+    private function getHostConfigFile()
+    {
+        $configfiles = [];
+        foreach($this->getAllVhostConfigFiles() as $file){
+            $fileData = file($file);
+            foreach($fileData as $line){
+                if(strpos($line,$this->getRootPath())){
+                    $configfiles[] = $file;
+                }
+            }
+        }
+
+        foreach($this->getAllNginxConfigSitesEnabled() as $file){
+            $fileData = file($file);
+            foreach($fileData as $line){
+                if(strpos($line,$this->getRootPath())){
+                    $configfiles[] = $file;
+                }
+            }
+        }
+
+        if(count($configfiles) > 1){
+            $filePathData = '';
+            foreach($configfiles as $filePath){
+                $filePathData .= $filePath . ' ';
+            }
+            return 'Multiple nginx config files for this host: ' . $filePathData;
+        }else{
+            return $configfiles[0];
+        }
+
+        return $configfiles;
+    }
+
+    private function getHostNginxLog()
+    {
+        $logFiles = [];
+        $file = $this->getHostConfigFile();
+        $configFileData = file($file);
+        foreach($configFileData as $line){
+            if(strpos($line,'access_log') !== false){
+                $pattern = '/\/var\/log\/nginx\/.[a-z|0-9|\.|_|\-|A-Z]*/';
+                preg_match($pattern, $line, $matches);
+                $accessLog = $matches[0];
+            }
+            if(strpos($line,'error_log') !== false){
+                $pattern = '/\/var\/log\/nginx\/.[a-z|0-9|\.|_|\-|A-Z]*/';
+                preg_match($pattern, $line, $matches);
+                $errorLog = $matches[0];
+            }
+        }
+
+        return 'Error Log: ' . $errorLog . '  ' . 'Access Log: ' .$accessLog;
+
+    }
+
+    private function getFilesInDir($dirPath)
+    {
+        $filesInDir = [];
+        $dir = new \DirectoryIterator($dirPath);
+        foreach ($dir as $fileinfo) {
+            if (!$fileinfo->isDot()) {
+                $filesInDir[] = $dirPath . $fileinfo->getFilename();
+            }
+        }
+
+        return $filesInDir;
+    }
+
+    private function getAllNginxConfigSitesEnabled()
+    {
+        return $this->getFilesInDir(self::NGINX_SITES_ENABLED_DIR);
     }
 
     private function getCacheList($cacheStatus)
